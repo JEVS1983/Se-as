@@ -25,7 +25,7 @@ jobs:
         echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release-key.jks
 
     - name: Grant permission
-      run: chmod +x gradlew
+      run: chmod +x android/gradlew
 
     - name: Build AAB
       run: ./gradlew bundleRelease
