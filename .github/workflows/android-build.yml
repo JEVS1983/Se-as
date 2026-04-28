@@ -9,40 +9,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Clonar repo
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Java 8 (compatible)
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 8
+          java-version: 17
 
-      # 3. Instalar Gradle
-      - name: Install Gradle
+      - name: Fix Gradle Wrapper
         run: |
-          sudo apt update
-          sudo apt install -y gradle
+          mkdir -p gradle/wrapper
+          echo "distributionUrl=https://services.gradle.org/distributions/gradle-8.2-bin.zip" > gradle/wrapper/gradle-wrapper.properties
+          gradle wrapper
 
-      # 4. Instalar Fastlane
-      - name: Install Fastlane
-        run: sudo gem install fastlane
-
-      # 5. Crear keystore
       - name: Decode Keystore
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release-key.jks
 
-      # 6. Build DIRECTO (sin wrapper)
       - name: Build AAB
         run: |
-          gradle clean
-          gradle bundleRelease --no-daemon
+          chmod +x gradlew
+          ./gradlew clean
+          ./gradlew bundleRelease
 
-      # 7. Deploy
-      - name: Deploy to Play Store
+      - name: Deploy
         run: fastlane deploy
         env:
           GOOGLE_PLAY_JSON: ${{ secrets.GOOGLE_PLAY_JSON }}
