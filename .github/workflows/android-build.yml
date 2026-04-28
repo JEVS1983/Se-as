@@ -9,11 +9,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Clonar repo
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Java
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -21,7 +19,6 @@ jobs:
           java-version: 17
           cache: gradle
 
-      # 3. Cache de Gradle (acelera builds)
       - name: Cache Gradle
         uses: actions/cache@v4
         with:
@@ -32,16 +29,14 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}
 
-      # 4. Instalar Fastlane
       - name: Install Fastlane
         run: sudo gem install fastlane
 
-      # 5. Decodificar Keystore
       - name: Decode Keystore
+        working-directory: android
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/release-key.jks
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release-key.jks
 
-      # 6. Permisos + Build (IMPORTANTE: carpeta android)
       - name: Build AAB
         working-directory: android
         run: |
@@ -49,7 +44,6 @@ jobs:
           ./gradlew clean
           ./gradlew bundleRelease
 
-      # 7. Deploy a Play Store
       - name: Deploy to Play Store
         working-directory: android
         run: fastlane deploy
