@@ -2,39 +2,37 @@ name: Auto Deploy Play Store
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Setup Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-    - name: Install Fastlane
-      run: sudo gem install fastlane
+      - name: Install Fastlane
+        run: sudo gem install fastlane
 
-    - name: Decode Keystore
-      run: |
-        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release-key.jks
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release-key.jks
 
-    - name: Build
-  run: |
-    chmod +x gradlew
-    ./gradlew build
-    - name: Build AAB
-      run: ./gradlew bundleRelease
+      - name: Build AAB
+        run: |
+          chmod +x gradlew
+          ./gradlew bundleRelease
 
-    - name: Deploy to Play Store
-      run: fastlane deploy
-      env:
-        GOOGLE_PLAY_JSON: ${{ secrets.GOOGLE_PLAY_JSON }}
-        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      - name: Deploy to Play Store
+        run: fastlane deploy
+        env:
+          GOOGLE_PLAY_JSON: ${{ secrets.GOOGLE_PLAY_JSON }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
