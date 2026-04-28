@@ -9,11 +9,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Clonar repositorio
+      # 1. Clonar repo
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Java compatible con Gradle viejo
+      # 2. Java 8 (compatible)
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -26,32 +26,22 @@ jobs:
           sudo apt update
           sudo apt install -y gradle
 
-      # 4. Generar gradlew automáticamente
-      - name: Generate Wrapper
-        run: gradle wrapper
-
-      # 5. Corregir opciones JVM (evita error --add-opens)
-      - name: Fix Gradle JVM options
-        run: |
-          echo "org.gradle.jvmargs=" >> gradle.properties
-
-      # 6. Instalar Fastlane
+      # 4. Instalar Fastlane
       - name: Install Fastlane
         run: sudo gem install fastlane
 
-      # 7. Crear keystore
+      # 5. Crear keystore
       - name: Decode Keystore
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release-key.jks
 
-      # 8. Build sin daemon (clave)
+      # 6. Build DIRECTO (sin wrapper)
       - name: Build AAB
         run: |
-          chmod +x gradlew
-          ./gradlew clean
-          ./gradlew bundleRelease --no-daemon
+          gradle clean
+          gradle bundleRelease --no-daemon
 
-      # 9. Deploy a Play Store
+      # 7. Deploy
       - name: Deploy to Play Store
         run: fastlane deploy
         env:
