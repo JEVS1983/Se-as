@@ -9,14 +9,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
-          cache: gradle
+
+      - name: Install Gradle
+        run: |
+          sudo apt update
+          sudo apt install -y gradle
+
+      - name: Generate Gradle Wrapper
+        run: |
+          gradle wrapper
 
       - name: Install Fastlane
         run: sudo gem install fastlane
