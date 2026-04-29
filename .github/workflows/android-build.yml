@@ -1,4 +1,4 @@
-name: Build AAB Correcto
+name: Build AAB Android
 
 on:
   push:
@@ -14,19 +14,23 @@ jobs:
       - name: 📥 Clonar repo
         uses: actions/checkout@v4
 
-      - name: 🐦 Instalar Flutter
-        uses: subosito/flutter-action@v2
+      - name: ☕ Instalar Java
+        uses: actions/setup-java@v4
         with:
-          flutter-version: '3.x'
+          distribution: 'temurin'
+          java-version: '17'
 
-      - name: 📦 Instalar dependencias
-        run: flutter pub get
+      - name: 🔧 Dar permisos a gradlew
+        run: chmod +x gradlew
+
+      - name: 🧹 Limpiar proyecto
+        run: ./gradlew clean
 
       - name: ⚙️ Build AAB
-        run: flutter build appbundle --release
+        run: ./gradlew bundleRelease
 
       - name: 📤 Subir AAB
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: build/app/outputs/bundle/release/app-release.aab
+          path: app/build/outputs/bundle/release/app-release.aab
